@@ -7,11 +7,13 @@ import TeacherMode from './components/TeacherMode';
 import VocabMode from './components/VocabMode';
 import MemoryMode from './components/MemoryMode';
 import SpeakingMode from './components/SpeakingMode';
+import ArcadeMode from './components/ArcadeMode';
 import { Mode, Language } from './types';
-import { Layers, Gamepad2, BrainCircuit, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Layers, Gamepad2, BrainCircuit, Mic, ChevronLeft, ChevronRight, Joystick } from 'lucide-react';
 
 // Define the logical order of modules for navigation
 const MODE_ORDER = [
+  Mode.ARCADE,
   Mode.VISUAL,
   Mode.KAHOOT,
   Mode.MEMORY,
@@ -40,7 +42,14 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
       </h2>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl px-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-[1400px] px-4">
+      <DashboardCard 
+        title="ARCADE" 
+        subtitle="MINI-GAMES" 
+        icon={<Joystick size={40} className="text-neon-pink mb-6 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300" />}
+        color="hover:border-neon-pink hover:shadow-[0_0_30px_rgba(255,0,85,0.2)]" 
+        onClick={() => setMode(Mode.ARCADE)} 
+      />
       <DashboardCard 
         title="VISUALIZER" 
         subtitle="GRAMMAR ENGINE" 
@@ -65,8 +74,8 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
        <DashboardCard 
         title="SPEAKING" 
         subtitle="VOICE MODULE" 
-        icon={<Mic size={40} className="text-neon-pink mb-6 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300" />}
-        color="hover:border-neon-pink hover:shadow-[0_0_30px_rgba(255,0,85,0.2)]" 
+        icon={<Mic size={40} className="text-neon-yellow mb-6 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300" />}
+        color="hover:border-neon-yellow hover:shadow-[0_0_30px_rgba(249,225,14,0.2)]" 
         onClick={() => setMode(Mode.SPEAKING)} 
       />
     </div>
@@ -85,8 +94,8 @@ const DashboardCard = ({ title, subtitle, icon, color, onClick }: any) => (
     <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl dark:rounded-none"></div>
     <div className="relative z-10">
         {icon}
-        <h3 className="text-3xl font-display font-bold text-gray-900 dark:text-white mb-2 transition-colors">{title}</h3>
-        <p className="font-mono text-xs text-gray-500 uppercase tracking-widest group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{subtitle}</p>
+        <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2 transition-colors">{title}</h3>
+        <p className="font-mono text-[10px] text-gray-500 uppercase tracking-widest group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{subtitle}</p>
     </div>
     
     {/* Tech Corners - Dark Mode Only */}
@@ -116,6 +125,8 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (mode) {
+      case Mode.ARCADE:
+        return <ArcadeMode />;
       case Mode.VISUAL:
         return <VisualMode lang={lang} />;
       case Mode.KAHOOT:
