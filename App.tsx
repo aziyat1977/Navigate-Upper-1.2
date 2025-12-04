@@ -8,7 +8,18 @@ import VocabMode from './components/VocabMode';
 import MemoryMode from './components/MemoryMode';
 import SpeakingMode from './components/SpeakingMode';
 import { Mode, Language } from './types';
-import { Layers, Gamepad2, BrainCircuit, Mic } from 'lucide-react';
+import { Layers, Gamepad2, BrainCircuit, Mic, ChevronLeft, ChevronRight } from 'lucide-react';
+
+// Define the logical order of modules for navigation
+const MODE_ORDER = [
+  Mode.VISUAL,
+  Mode.KAHOOT,
+  Mode.MEMORY,
+  Mode.SPEAKING,
+  Mode.VOCABULARY,
+  Mode.STUDENT,
+  Mode.TEACHER
+];
 
 // Cinematic Dashboard - Defined before usage
 const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Language }) => (
@@ -130,6 +141,41 @@ const App: React.FC = () => {
       <div className="pt-24 animate-fadeIn">
         {renderContent()}
       </div>
+
+      {/* Global Module Navigation Buttons (Visible on all pages except Dashboard) */}
+      {mode !== Mode.DASHBOARD && (
+        <>
+            <button
+                onClick={() => {
+                    const idx = MODE_ORDER.indexOf(mode);
+                    if (idx === 0) setMode(Mode.DASHBOARD);
+                    else if (idx > 0) setMode(MODE_ORDER[idx - 1]);
+                }}
+                className="fixed left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-400 hover:text-neon-blue hover:border-neon-blue hover:scale-110 transition-all shadow-lg flex items-center justify-center group backdrop-blur"
+                title="Previous Module"
+            >
+                <ChevronLeft size={24} />
+                <span className="absolute left-full ml-4 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-mono">
+                    {MODE_ORDER.indexOf(mode) === 0 ? "DASHBOARD" : "PREV MODULE"}
+                </span>
+            </button>
+
+            <button
+                onClick={() => {
+                    const idx = MODE_ORDER.indexOf(mode);
+                    if (idx < MODE_ORDER.length - 1) setMode(MODE_ORDER[idx + 1]);
+                }}
+                disabled={MODE_ORDER.indexOf(mode) === MODE_ORDER.length - 1}
+                className={`fixed right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-white/80 dark:bg-black/40 border border-gray-200 dark:border-white/10 text-gray-400 hover:text-neon-blue hover:border-neon-blue hover:scale-110 transition-all shadow-lg flex items-center justify-center group backdrop-blur ${MODE_ORDER.indexOf(mode) === MODE_ORDER.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title="Next Module"
+            >
+                <ChevronRight size={24} />
+                <span className="absolute right-full mr-4 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-mono">
+                    NEXT MODULE
+                </span>
+            </button>
+        </>
+      )}
     </div>
   );
 };
