@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mode, Language } from '../types';
-import { LayoutDashboard, GraduationCap, PenTool, Gamepad2, Layers, BookOpen, Menu, X, Globe, Settings, BrainCircuit, Sun, Moon, Mic, Joystick } from 'lucide-react';
+import { LayoutDashboard, GraduationCap, PenTool, Gamepad2, Layers, BookOpen, Menu, X, Globe, Settings, BrainCircuit, Sun, Moon, Mic, Joystick, Infinity } from 'lucide-react';
 
 interface NavbarProps {
   currentMode: Mode;
@@ -16,6 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentMode, setMode, lang, setLang, th
 
   const modes = [
     { id: Mode.DASHBOARD, label: 'DASHBOARD', icon: LayoutDashboard },
+    { id: Mode.GENERATOR, label: 'INFINITE DRILL', icon: Infinity },
     { id: Mode.ARCADE, label: 'GRAMMAR ARCADE', icon: Joystick },
     { id: Mode.VISUAL, label: 'TIMELINE VISUALIZER', icon: Layers },
     { id: Mode.KAHOOT, label: 'KAHOOT ARENA', icon: Gamepad2 },

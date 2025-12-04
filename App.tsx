@@ -8,11 +8,13 @@ import VocabMode from './components/VocabMode';
 import MemoryMode from './components/MemoryMode';
 import SpeakingMode from './components/SpeakingMode';
 import ArcadeMode from './components/ArcadeMode';
+import GeneratorMode from './components/GeneratorMode';
 import { Mode, Language } from './types';
-import { Layers, Gamepad2, BrainCircuit, Mic, ChevronLeft, ChevronRight, Joystick } from 'lucide-react';
+import { Layers, Gamepad2, BrainCircuit, Mic, ChevronLeft, ChevronRight, Joystick, Infinity } from 'lucide-react';
 
 // Define the logical order of modules for navigation
 const MODE_ORDER = [
+  Mode.GENERATOR,
   Mode.ARCADE,
   Mode.VISUAL,
   Mode.KAHOOT,
@@ -42,7 +44,14 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
       </h2>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-[1400px] px-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 w-full max-w-[1600px] px-4">
+      <DashboardCard 
+        title="DRILL" 
+        subtitle="INFINITE TEST" 
+        icon={<Infinity size={40} className="text-white mb-6 group-hover:scale-110 group-hover:rotate-180 transition-all duration-700" />}
+        color="hover:border-white hover:shadow-[0_0_30px_rgba(255,255,255,0.4)]" 
+        onClick={() => setMode(Mode.GENERATOR)} 
+      />
       <DashboardCard 
         title="ARCADE" 
         subtitle="MINI-GAMES" 
@@ -81,7 +90,7 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
     </div>
 
     <p className="mt-16 max-w-xl text-gray-400 dark:text-gray-600 font-mono text-xs uppercase tracking-widest transition-colors">
-        System v2.05 // Top-Level Security Clearance Required
+        System v2.10 // Top-Level Security Clearance Required
     </p>
   </div>
 );
@@ -125,6 +134,8 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (mode) {
+      case Mode.GENERATOR:
+        return <GeneratorMode />;
       case Mode.ARCADE:
         return <ArcadeMode />;
       case Mode.VISUAL:

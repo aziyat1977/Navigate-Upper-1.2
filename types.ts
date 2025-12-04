@@ -7,7 +7,8 @@ export enum Mode {
   VOCABULARY = 'VOCABULARY',
   MEMORY = 'MEMORY',
   SPEAKING = 'SPEAKING',
-  ARCADE = 'ARCADE'
+  ARCADE = 'ARCADE',
+  GENERATOR = 'GENERATOR'
 }
 
 export enum Language {
