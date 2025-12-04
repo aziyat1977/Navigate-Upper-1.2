@@ -10,7 +10,7 @@ interface Props {
 interface Card {
   id: number;
   content: string;
-  type: 'WORD' | 'DEF';
+  type: 'WORD' | 'TRANS';
   pairId: string;
   isFlipped: boolean;
   isMatched: boolean;
@@ -37,7 +37,7 @@ const MemoryMode: React.FC<Props> = ({ lang }) => {
     // Select 6 random items
     const shuffledVocab = [...VOCABULARY_LIST].sort(() => 0.5 - Math.random()).slice(0, 6);
     
-    // Create pairs (Word + Definition)
+    // Create pairs (Word + Translation)
     const cardPairs: Card[] = [];
     shuffledVocab.forEach((item, index) => {
       // Card 1: The Word
@@ -49,11 +49,22 @@ const MemoryMode: React.FC<Props> = ({ lang }) => {
         isFlipped: false,
         isMatched: false
       });
-      // Card 2: The Definition (or translation depending on difficulty, stick to def for now)
+      
+      // Card 2: Translation (Replaces Definition)
+      let translationContent = '';
+      if (lang === Language.RU) {
+        translationContent = item.translation_ru;
+      } else if (lang === Language.UZ) {
+        translationContent = item.translation_uz;
+      } else {
+        // For EN mode, show both translations as requested
+        translationContent = `${item.translation_ru} / ${item.translation_uz}`;
+      }
+
       cardPairs.push({
         id: index * 2 + 1,
-        content: lang === Language.EN ? item.definition : (lang === Language.RU ? item.translation_ru : item.translation_uz),
-        type: 'DEF',
+        content: translationContent,
+        type: 'TRANS',
         pairId: item.id,
         isFlipped: false,
         isMatched: false
@@ -154,12 +165,13 @@ const MemoryMode: React.FC<Props> = ({ lang }) => {
               key={card.id} 
               className="relative aspect-square cursor-pointer perspective-1000 group"
               onClick={() => {
-                if (!disabled && !card.isFlipped && !card.isMatched) {
+                // Fix: prevent self-match by checking if card.id matches choiceOne.id
+                if (!disabled && !card.isMatched && card.id !== choiceOne?.id) {
                   handleChoice(card);
                 }
               }}
             >
-              <div className={`w-full h-full relative transform-style-3d transition-all duration-500 ${card.isFlipped || card === choiceOne || card === choiceTwo || card.isMatched ? 'rotate-y-180' : ''}`}>
+              <div className={`w-full h-full relative transform-style-3d transition-all duration-500 ${card === choiceOne || card === choiceTwo || card.isMatched ? 'rotate-y-180' : ''}`}>
                 
                 {/* Back of Card (Hidden) */}
                 <div className="absolute inset-0 backface-hidden bg-white dark:bg-[#0A0A0F] border-2 border-gray-200 dark:border-neon-blue/30 rounded-xl flex items-center justify-center group-hover:border-neon-blue transition-colors shadow-md dark:shadow-[0_0_20px_rgba(0,243,255,0.05)]">
@@ -173,7 +185,7 @@ const MemoryMode: React.FC<Props> = ({ lang }) => {
                     ? 'bg-neon-green/10 border-neon-green text-neon-green' 
                     : 'bg-gray-100 dark:bg-[#1a1a20] border-gray-300 dark:border-white/20 text-gray-900 dark:text-white'
                 }`}>
-                  <span className={`font-tech ${card.type === 'WORD' ? 'text-xl md:text-2xl font-bold' : 'text-xs md:text-sm text-gray-600 dark:text-gray-300'}`}>
+                  <span className={`font-tech ${card.type === 'WORD' ? 'text-xl md:text-2xl font-bold' : 'text-sm md:text-lg text-gray-700 dark:text-gray-300'}`}>
                     {card.content}
                   </span>
                   {card.isMatched && (

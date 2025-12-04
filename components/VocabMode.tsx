@@ -1,17 +1,48 @@
 import React, { useState } from 'react';
 import { VOCABULARY_LIST } from '../constants';
 import { Language, VocabItem } from '../types';
-import { Search, Volume2, Database, Wand2, Loader, Image as ImageIcon } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { Search, Volume2, Database, Wand2, Loader } from 'lucide-react';
+import { GoogleGenAI, Modality } from "@google/genai";
 
 interface Props {
   lang: Language;
+}
+
+// Audio Decode Helper Functions
+function decode(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
 }
 
 const VocabMode: React.FC<Props> = ({ lang }) => {
   const [search, setSearch] = useState('');
   const [images, setImages] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState<Record<string, boolean>>({});
+  const [playingAudio, setPlayingAudio] = useState<Record<string, boolean>>({});
   
   const filtered = VOCABULARY_LIST.filter(v => v.word.toLowerCase().includes(search.toLowerCase()));
 
@@ -44,6 +75,56 @@ const VocabMode: React.FC<Props> = ({ lang }) => {
       alert("Neural rendering failed. Please try again.");
     } finally {
       setGenerating(prev => ({ ...prev, [item.id]: false }));
+    }
+  };
+
+  const playPronunciation = async (item: VocabItem) => {
+    if (playingAudio[item.id]) return;
+    setPlayingAudio(prev => ({ ...prev, [item.id]: true }));
+
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: [{ parts: [{ text: item.word }] }],
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: { voiceName: 'Kore' },
+              },
+          },
+        },
+      });
+
+      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      
+      if (base64Audio) {
+        const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
+        const outputNode = outputAudioContext.createGain();
+        const audioBuffer = await decodeAudioData(
+          decode(base64Audio),
+          outputAudioContext,
+          24000,
+          1,
+        );
+        const source = outputAudioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(outputNode);
+        outputNode.connect(outputAudioContext.destination);
+        
+        source.onended = () => {
+             setPlayingAudio(prev => ({ ...prev, [item.id]: false }));
+        };
+        
+        source.start();
+      } else {
+        throw new Error("No audio data returned");
+      }
+
+    } catch (error) {
+      console.error("Audio generation failed:", error);
+      setPlayingAudio(prev => ({ ...prev, [item.id]: false }));
     }
   };
 
@@ -122,7 +203,13 @@ const VocabMode: React.FC<Props> = ({ lang }) => {
                <h3 className="text-3xl font-display font-bold text-gray-900 dark:text-white group-hover:text-neon-green transition-colors">{item.word}</h3>
                <div className="flex items-center gap-3 text-gray-500 font-mono text-xs mt-1">
                   <span>/{item.pronunciation}/</span>
-                  <Volume2 size={12} className="cursor-pointer hover:text-gray-900 dark:hover:text-white" />
+                  <button 
+                    onClick={() => playPronunciation(item)}
+                    disabled={playingAudio[item.id]}
+                    className={`transition-colors ${playingAudio[item.id] ? 'text-neon-green animate-pulse' : 'hover:text-gray-900 dark:hover:text-white'}`}
+                  >
+                    <Volume2 size={12} />
+                  </button>
                </div>
             </div>
 

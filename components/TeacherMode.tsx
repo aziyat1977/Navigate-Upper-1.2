@@ -1,5 +1,5 @@
 import React from 'react';
-import { GAP_FILL_DATA, KAHOOT_QUESTIONS } from '../constants';
+import { GAP_FILL_EXERCISE_LESSON, KAHOOT_QUESTIONS } from '../constants';
 import { FileText, Key, Eye } from 'lucide-react';
 
 const TeacherMode: React.FC = () => {
@@ -14,13 +14,15 @@ const TeacherMode: React.FC = () => {
         <div className="glass-panel p-6 rounded-xl">
            <h3 className="text-xl font-mono mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
              <FileText size={20} className="text-neon-blue" />
-             TEXTBOOK EXERCISE KEY (p.137)
+             READING KEY: "The Letter is Dead?"
            </h3>
            <div className="space-y-3">
-             {GAP_FILL_DATA.answers.map((ans, idx) => (
+             {GAP_FILL_EXERCISE_LESSON.answers.map((ans, idx) => (
                <div key={idx} className="flex justify-between border-b border-gray-200 dark:border-white/10 pb-2">
-                 <span className="text-gray-500 dark:text-gray-400">Gap {idx + 1} ({GAP_FILL_DATA.hints[idx]}):</span>
-                 <span className="text-neon-green font-bold">{ans}</span>
+                 <span className="text-gray-500 dark:text-gray-400">
+                    Gap {String.fromCharCode(97 + idx)} ({GAP_FILL_EXERCISE_LESSON.hints[idx]}):
+                 </span>
+                 <span className="text-neon-green font-bold text-sm text-right ml-4">{ans}</span>
                </div>
              ))}
            </div>
@@ -30,7 +32,7 @@ const TeacherMode: React.FC = () => {
         <div className="glass-panel p-6 rounded-xl">
            <h3 className="text-xl font-mono mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
              <Eye size={20} className="text-neon-pink" />
-             QUIZ LOGIC & ANSWERS
+             QUIZ LOGIC: Letters of Note
            </h3>
            <div className="space-y-4 h-[400px] overflow-y-auto pr-2 custom-scrollbar">
              {KAHOOT_QUESTIONS.map((q) => (

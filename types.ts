@@ -5,7 +5,8 @@ export enum Mode {
   KAHOOT = 'KAHOOT',
   VISUAL = 'VISUAL',
   VOCABULARY = 'VOCABULARY',
-  MEMORY = 'MEMORY'
+  MEMORY = 'MEMORY',
+  SPEAKING = 'SPEAKING'
 }
 
 export enum Language {
@@ -27,6 +28,7 @@ export interface VocabItem {
 
 export interface QuizQuestion {
   id: number;
+  quizSet: string;
   question: string;
   options: string[];
   correctAnswer: number;

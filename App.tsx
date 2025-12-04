@@ -6,8 +6,9 @@ import StudentMode from './components/StudentMode';
 import TeacherMode from './components/TeacherMode';
 import VocabMode from './components/VocabMode';
 import MemoryMode from './components/MemoryMode';
+import SpeakingMode from './components/SpeakingMode';
 import { Mode, Language } from './types';
-import { Layers, Gamepad2, BrainCircuit } from 'lucide-react';
+import { Layers, Gamepad2, BrainCircuit, Mic } from 'lucide-react';
 
 // Cinematic Dashboard - Defined before usage
 const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Language }) => (
@@ -28,7 +29,7 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
       </h2>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl px-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl px-4">
       <DashboardCard 
         title="VISUALIZER" 
         subtitle="GRAMMAR ENGINE" 
@@ -50,10 +51,17 @@ const Dashboard = ({ setMode, lang }: { setMode: (m: Mode) => void, lang: Langua
         color="hover:border-neon-green hover:shadow-[0_0_30px_rgba(0,255,148,0.2)]" 
         onClick={() => setMode(Mode.MEMORY)} 
       />
+       <DashboardCard 
+        title="SPEAKING" 
+        subtitle="VOICE MODULE" 
+        icon={<Mic size={40} className="text-neon-pink mb-6 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-300" />}
+        color="hover:border-neon-pink hover:shadow-[0_0_30px_rgba(255,0,85,0.2)]" 
+        onClick={() => setMode(Mode.SPEAKING)} 
+      />
     </div>
 
     <p className="mt-16 max-w-xl text-gray-400 dark:text-gray-600 font-mono text-xs uppercase tracking-widest transition-colors">
-        System v2.04 // Top-Level Security Clearance Required
+        System v2.05 // Top-Level Security Clearance Required
     </p>
   </div>
 );
@@ -103,6 +111,8 @@ const App: React.FC = () => {
         return <KahootMode lang={lang} />;
       case Mode.MEMORY:
         return <MemoryMode lang={lang} />;
+      case Mode.SPEAKING:
+        return <SpeakingMode lang={lang} />;
       case Mode.STUDENT:
         return <StudentMode lang={lang} />;
       case Mode.TEACHER:
