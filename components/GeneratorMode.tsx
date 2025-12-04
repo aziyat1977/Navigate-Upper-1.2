@@ -50,7 +50,7 @@ const GeneratorMode: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border border-white/10">
+        <div className="flex items-center gap-4 bg-white/5 p-4 rounded-lg border border-white/10 hover:border-neon-yellow/50 transition-colors duration-300">
           <div className="text-right">
             <div className="text-xs text-gray-500 font-mono uppercase">Current Streak</div>
             <div className="text-3xl font-bold font-display text-neon-yellow">{streak}</div>
@@ -63,10 +63,10 @@ const GeneratorMode: React.FC = () => {
       <div className="flex gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
         <button
           onClick={() => setSelectedTopic('MIX')}
-          className={`px-4 py-2 rounded-full font-mono text-xs font-bold whitespace-nowrap transition-all border ${
+          className={`px-4 py-2 rounded-full font-mono text-xs font-bold whitespace-nowrap transition-all border interactive-hover ${
             selectedTopic === 'MIX' 
-              ? 'bg-neon-blue text-black border-neon-blue' 
-              : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/30'
+              ? 'bg-neon-blue text-black border-neon-blue shadow-[0_0_10px_#00F3FF]' 
+              : 'bg-white/5 text-gray-400 border-white/10 hover:border-neon-blue/50 hover:text-white'
           }`}
         >
           MIX ALL TOPICS
@@ -75,10 +75,10 @@ const GeneratorMode: React.FC = () => {
           <button
             key={t.id}
             onClick={() => setSelectedTopic(t.id)}
-            className={`px-4 py-2 rounded-full font-mono text-xs font-bold whitespace-nowrap transition-all border ${
+            className={`px-4 py-2 rounded-full font-mono text-xs font-bold whitespace-nowrap transition-all border interactive-hover ${
               selectedTopic === t.id
-                ? 'bg-neon-blue text-black border-neon-blue' 
-                : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/30'
+                ? 'bg-neon-blue text-black border-neon-blue shadow-[0_0_10px_#00F3FF]' 
+                : 'bg-white/5 text-gray-400 border-white/10 hover:border-neon-blue/50 hover:text-white'
             }`}
           >
             {t.name.toUpperCase()}
@@ -89,7 +89,7 @@ const GeneratorMode: React.FC = () => {
       {/* Question Card */}
       {currentQuestion && (
         <div className="relative">
-          <div className="glass-panel p-8 md:p-12 rounded-2xl border border-neon-blue/20 relative overflow-hidden min-h-[400px] flex flex-col justify-center">
+          <div className="glass-panel p-8 md:p-12 rounded-2xl border border-neon-blue/20 relative overflow-hidden min-h-[400px] flex flex-col justify-center transition-all hover:border-neon-blue/40">
             
             <div className="absolute top-0 right-0 p-4 opacity-10">
                <span className="text-9xl font-display font-black text-white">{selectedTopic === 'MIX' ? 'MIX' : selectedTopic.substring(0,3)}</span>
@@ -110,14 +110,14 @@ const GeneratorMode: React.FC = () => {
                     key={idx}
                     onClick={() => handleAnswer(idx)}
                     disabled={feedback !== null}
-                    className={`p-6 rounded-xl border text-lg font-bold transition-all transform active:scale-95 ${
+                    className={`p-6 rounded-xl border text-lg font-bold transition-all transform duration-200 ${
                       feedback 
                         ? idx === currentQuestion.correctAnswer 
-                          ? 'bg-neon-green text-black border-neon-green scale-105'
-                          : feedback === 'WRONG' && idx !== currentQuestion.correctAnswer // Highlight selected wrong answer if we tracked it, but for simplicity showing all non-correct as disabled
+                          ? 'bg-neon-green text-black border-neon-green scale-105 shadow-[0_0_20px_#00FF94]'
+                          : feedback === 'WRONG' && idx !== currentQuestion.correctAnswer
                              ? 'bg-red-500/20 border-red-500 opacity-50' 
                              : 'bg-white/5 border-white/10 opacity-50'
-                        : 'bg-white/5 border-white/10 hover:border-neon-blue hover:bg-white/10 text-gray-800 dark:text-gray-200'
+                        : 'bg-white/5 border-white/10 hover:border-neon-blue hover:bg-white/10 text-gray-800 dark:text-gray-200 interactive-hover hover:shadow-[0_0_15px_rgba(0,243,255,0.2)]'
                     }`}
                   >
                     {opt}
@@ -146,7 +146,7 @@ const GeneratorMode: React.FC = () => {
                 {feedback === 'WRONG' && (
                   <button 
                     onClick={loadQuestion}
-                    className="mt-8 px-8 py-3 bg-white text-black font-bold rounded hover:bg-gray-200 transition-colors flex items-center gap-2"
+                    className="mt-8 px-8 py-3 bg-white text-black font-bold rounded hover:bg-gray-200 transition-all flex items-center gap-2 interactive-hover hover:scale-105"
                   >
                     <RefreshCw size={20} /> NEXT QUESTION
                   </button>

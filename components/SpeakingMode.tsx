@@ -32,6 +32,7 @@ const SpeakingMode: React.FC<Props> = ({ lang }) => {
 
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
   const generatedUrlsRef = useRef<string[]>([]); // Track for cleanup
@@ -50,25 +51,47 @@ const SpeakingMode: React.FC<Props> = ({ lang }) => {
     };
   }, []);
 
-  // Stop recording tracks helper
-  const stopTracks = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.stream) {
-        mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
-    }
-  };
-
   // Ensure recording stops if we navigate away while recording
   useEffect(() => {
     if (isRecording) {
-        stopTracks();
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+        }
         setIsRecording(false);
     }
   }, [currentQIndex, activeCategoryId]);
 
+  // Stop recording tracks helper
+  const stopTracks = () => {
+    if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+    }
+  };
+
   const handleStartRecording = async () => {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Your browser does not support audio recording.");
+        return;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
+      streamRef.current = stream; // Save ref for robust cleanup
+      
+      // MIME Type detection for cross-browser support
+      let mimeType = '';
+      if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+        mimeType = 'audio/webm;codecs=opus';
+      } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+        mimeType = 'audio/webm';
+      } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      }
+      
+      const options = mimeType ? { mimeType } : undefined;
+      const mediaRecorder = new MediaRecorder(stream, options);
+      
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
@@ -79,23 +102,27 @@ const SpeakingMode: React.FC<Props> = ({ lang }) => {
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        // Use detected mime type or fallback
+        const type = mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type });
         const url = URL.createObjectURL(audioBlob);
         generatedUrlsRef.current.push(url); // Track for cleanup
         
+        // Use the closure's currentRecordKey to ensure we save to the correct question
+        // even if the user navigated away immediately (though we force stop on nav)
         if (currentRecordKey) {
             setRecordings(prev => ({ ...prev, [currentRecordKey]: url }));
         }
         
-        // Stop all tracks to release microphone
-        stream.getTracks().forEach(track => track.stop());
+        stopTracks(); // Release microphone
       };
 
       mediaRecorder.start();
       setIsRecording(true);
     } catch (err) {
       console.error("Error accessing microphone:", err);
-      alert("Microphone access denied or not available. Please check browser permissions.");
+      const msg = err instanceof Error ? err.message : String(err);
+      alert(`Microphone access failed: ${msg}. Please ensure you have granted permission.`);
     }
   };
 
@@ -113,6 +140,7 @@ const SpeakingMode: React.FC<Props> = ({ lang }) => {
             delete newState[currentRecordKey];
             return newState;
         });
+        // Also cleanup URL if possible, but state removal is enough for UI
     }
   };
 
